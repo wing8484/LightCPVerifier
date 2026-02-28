@@ -13,12 +13,17 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Pull Docker Image
-        run: docker pull ${{ github.event.inputs.image_name }}
+        run: |
+          # 使用 --platform 强制拉取，解决 no matching manifest 报错
+          # 这个镜像大概率是 linux/arm64 架构
+          docker pull --platform linux/arm64 ${{ github.event.inputs.image_name }} || \
+          docker pull ${{ github.event.inputs.image_name }}
 
       - name: Save Docker Image
         run: |
-          # 将冒号替换为下划线，避免文件名错误
-          FILENAME=$(echo ${{ github.event.inputs.image_name }} | tr ':' '_').tar
+          # 改进文件名处理：同时替换冒号和斜杠，避免路径错误
+          CLEAN_NAME=$(echo "${{ github.event.inputs.image_name }}" | sed 's/[\/:]/_/g')
+          FILENAME="${CLEAN_NAME}.tar"
           docker save -o $FILENAME ${{ github.event.inputs.image_name }}
           echo "FILENAME=$FILENAME" >> $GITHUB_ENV
 
