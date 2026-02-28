@@ -4,20 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       image_name:
-        description: 'yanagiorigami/lightcpverifier:latest'
+        description: 'alielqursh/lightcpverifier:latest'
         required: true
-        default: 'yanagiorigami/lightcpverifier:latest'
+        default: 'alielqursh/lightcpverifier:latest'
 
 jobs:
   download-image:
     runs-on: ubuntu-22.04
     steps:
       - name: Pull Docker Image
-        run: |
-          # 使用 --platform 强制拉取，解决 no matching manifest 报错
-          # 这个镜像大概率是 linux/arm64 架构
-          docker pull --platform linux/arm64 ${{ github.event.inputs.image_name }} || \
-          docker pull ${{ github.event.inputs.image_name }}
+        run: docker pull ${{ github.event.inputs.image_name }}
 
       - name: Save Docker Image
         run: |
