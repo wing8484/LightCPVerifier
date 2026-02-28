@@ -1,0 +1,30 @@
+name: Download Docker Image to Artifact
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_name:
+        description: 'yanagiorigami/lightcpverifier:latest'
+        required: true
+        default: 'yanagiorigami/lightcpverifier:latest'
+
+jobs:
+  download-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull Docker Image
+        run: docker pull ${{ github.event.inputs.image_name }}
+
+      - name: Save Docker Image
+        run: |
+          # 将冒号替换为下划线，避免文件名错误
+          FILENAME=$(echo ${{ github.event.inputs.image_name }} | tr ':' '_').tar
+          docker save -o $FILENAME ${{ github.event.inputs.image_name }}
+          echo "FILENAME=$FILENAME" >> $GITHUB_ENV
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: ${{ env.FILENAME }}
+          retention-days: 1
