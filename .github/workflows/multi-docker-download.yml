@@ -24,7 +24,7 @@ jobs:
             docker pull "$image"
             CLEAN_NAME=$(echo "$image" | sed 's/[\/:]/_/g')
             docker save -o "./docker_images/${CLEAN_NAME}.tar" "$image"
-          done < images.txt
+          done < images_mini.txt
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
