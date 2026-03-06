@@ -1,57 +1,33 @@
-name: Bulk Download Docker Images to Artifact
+name: Bulk Download from File
 
 on:
-  workflow_dispatch:
-    inputs:
-      image_names:
-        description: '请输入镜像列表（每行一个，例如：nginx:latest）'
-        required: true
-        type: string
-        default: |
-          nginx:latest
-          redis:6-alpine
-          mysql:8.0
+  push:
+    paths:
+      - 'images_mini.txt'  # 只要你修改这个文件并推送，就自动运行
+  workflow_dispatch:   # 也保留手动触发按钮
 
 jobs:
-  download-images:
+  download:
     runs-on: ubuntu-latest
     steps:
-      - name: Create Workspace Folder
-        run: mkdir -p ./docker_images
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Pull and Save Docker Images
+      - name: Pull and Save
         run: |
-          # 将输入的多行字符串保存到临时文件
-          echo "${{ github.event.inputs.image_names }}" > image_list.txt
-          
-          # 循环处理每一行
+          mkdir -p ./docker_images
           while IFS= read -r image || [ -n "$image" ]; do
-            # 忽略空行和注释
             [[ -z "$image" || "$image" =~ ^# ]] && continue
-            
-            # 去除首尾空格
             image=$(echo "$image" | xargs)
             
-            echo "------------------------------------------"
-            echo "Processing: $image"
-            
-            # 拉取镜像
-            if docker pull "$image"; then
-              # 转换文件名为合法字符
-              CLEAN_NAME=$(echo "$image" | sed 's/[\/:]/_/g')
-              FILENAME="./docker_images/${CLEAN_NAME}.tar"
-              
-              # 保存镜像
-              docker save -o "$FILENAME" "$image"
-              echo "Successfully saved $image to $FILENAME"
-            else
-              echo "Error: Failed to pull $image"
-            fi
-          done < image_list.txt
+            echo "Processing $image..."
+            docker pull "$image"
+            CLEAN_NAME=$(echo "$image" | sed 's/[\/:]/_/g')
+            docker save -o "./docker_images/${CLEAN_NAME}.tar" "$image"
+          done < images.txt
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: bulk-docker-images
+          name: all-images
           path: ./docker_images/
-          retention-days: 1  # 节省存储空间，保留1天
