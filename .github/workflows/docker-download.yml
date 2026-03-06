@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       image_name:
-        description: 'alielqursh/lightcpverifier:latest'
+        description: 'mswebench/ponylang_m_ponyc:pr-4583'
         required: true
-        default: 'alielqursh/lightcpverifier:latest'
+        default: 'mswebench/ponylang_m_ponyc:pr-4583'
 
 jobs:
   download-image:
