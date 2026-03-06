@@ -48,7 +48,3 @@ mswebench/jqlang_m_jq:pr-2839
 mswebench/jqlang_m_jq:pr-2824
 mswebench/jqlang_m_jq:pr-2646
 mswebench/jqlang_m_jq:pr-2624
-mswebench/catchorg_m_catch2:pr-2288
-mswebench/catchorg_m_catch2:pr-1616
-mswebench/catchorg_m_catch2:pr-1609
-mswebench/catchorg_m_catch2:pr-1608
