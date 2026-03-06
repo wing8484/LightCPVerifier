@@ -1,41 +1,57 @@
-name: Bulk Image Sync
+name: Bulk Download Docker Images to Artifact
 
 on:
-  push:
-    paths:
-      - 'images.txt'  # 当你修改列表文件并上传时触发
-  workflow_dispatch:   # 支持手动点击按钮触发
+  workflow_dispatch:
+    inputs:
+      image_names:
+        description: '请输入镜像列表（每行一个，例如：nginx:latest）'
+        required: true
+        type: string
+        default: |
+          nginx:latest
+          redis:6-alpine
+          mysql:8.0
 
 jobs:
-  sync:
+  download-images:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Create Workspace Folder
+        run: mkdir -p ./docker_images
 
-      - name: Install skopeo
-        run: sudo apt-get update && sudo apt-get install -y skopeo
-
-      - name: Login to Destination Registry
+      - name: Pull and Save Docker Images
         run: |
-          skopeo login --username "${{ secrets.DEST_USERNAME }}" --password "${{ secrets.DEST_PASSWORD }}" ${{ secrets.DEST_REGISTRY }}
-
-      - name: Sync Images
-        run: |
-          # 循环读取 images.txt 中的每一行
+          # 将输入的多行字符串保存到临时文件
+          echo "${{ github.event.inputs.image_names }}" > image_list.txt
+          
+          # 循环处理每一行
           while IFS= read -r image || [ -n "$image" ]; do
-            if [[ -z "$image" || "$image" =~ ^# ]]; then continue; fi
+            # 忽略空行和注释
+            [[ -z "$image" || "$image" =~ ^# ]] && continue
             
-            echo "Syncing $image..."
+            # 去除首尾空格
+            image=$(echo "$image" | xargs)
             
-            # 将 docker.io/library/nginx 转换为 阿里云地址
-            # 假设你的阿里云命名空间是 my-space
-            NAMESPACE="your-namespace" 
+            echo "------------------------------------------"
+            echo "Processing: $image"
             
-            # 执行同步：从 Docker Hub 同步到 阿里云
-            skopeo copy --all \
-              docker://docker.io/$image \
-              docker://${{ secrets.DEST_REGISTRY }}/$NAMESPACE/$image
+            # 拉取镜像
+            if docker pull "$image"; then
+              # 转换文件名为合法字符
+              CLEAN_NAME=$(echo "$image" | sed 's/[\/:]/_/g')
+              FILENAME="./docker_images/${CLEAN_NAME}.tar"
               
-            echo "Finished syncing $image"
-          done < images.txt
+              # 保存镜像
+              docker save -o "$FILENAME" "$image"
+              echo "Successfully saved $image to $FILENAME"
+            else
+              echo "Error: Failed to pull $image"
+            fi
+          done < image_list.txt
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bulk-docker-images
+          path: ./docker_images/
+          retention-days: 1  # 节省存储空间，保留1天
