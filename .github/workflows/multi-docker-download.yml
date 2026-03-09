@@ -32,7 +32,7 @@ jobs:
           mkdir -p ./docker_images
           # 1. 使用 sed 提取 100 到 200 行
           # 2. 循环处理
-          sed -n '50,100p' images_mini.txt | while IFS= read -r image || [ -n "$image" ]; do
+          sed -n '51,100p' images_mini.txt | while IFS= read -r image || [ -n "$image" ]; do
           # 过滤空行和注释
             [[ -z "$image" || "$image" =~ ^# ]] && continue
             image=$(echo "$image" | xargs)
