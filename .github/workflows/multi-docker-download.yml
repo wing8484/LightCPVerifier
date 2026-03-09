@@ -30,6 +30,12 @@ jobs:
       - name: Pull and Save
         run: |
           mkdir -p ./docker_images
+          # --- 增加调试信息 ---
+          echo "Current directory: $(pwd)"
+          echo "Files in directory:"
+          ls -F
+          echo "Total lines in images_mini.txt: $(wc -l < images_mini.txt)"
+          # ------------------
           # 1. 使用 sed 提取 100 到 200 行
           # 2. 循环处理
           sed -n '51,100p' images_mini.txt | while IFS= read -r image || [ -n "$image" ]; do
