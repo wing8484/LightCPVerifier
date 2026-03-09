@@ -30,16 +30,30 @@ jobs:
       - name: Pull and Save
         run: |
           mkdir -p ./docker_images
-          while IFS= read -r image || [ -n "$image" ]; do
+          # 1. 使用 sed 提取 100 到 200 行
+          # 2. 循环处理
+          sed -n '50,100p' images_mini.txt | while IFS= read -r image || [ -n "$image" ]; do
+          # 过滤空行和注释
             [[ -z "$image" || "$image" =~ ^# ]] && continue
             image=$(echo "$image" | xargs)
             
             echo "Processing $image..."
-            docker pull "$image"
-            CLEAN_NAME=$(echo "$image" | sed 's/[\/:]/_/g')
-            docker save -o "./docker_images/${CLEAN_NAME}.tar" "$image"
-          done < images_mini.txt
 
+            # 拉取镜像
+            if docker pull "$image"; then
+              CLEAN_NAME=$(echo "$image" | sed 's/[\/:]/_/g')
+              
+              # 保存并直接通过 gzip 压缩 (大幅节省空间)
+              echo "Saving and compressing $image..."
+              docker save "$image" | gzip > "./docker_images/${CLEAN_NAME}.tar.gz"
+              
+              # 关键步骤：删除已下载的镜像以释放空间，为下一个镜像腾地方
+              docker rmi "$image"
+            else
+              echo "Failed to pull $image, skipping..."
+            fi
+          done
+              
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
