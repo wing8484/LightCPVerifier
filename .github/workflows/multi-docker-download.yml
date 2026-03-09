@@ -40,18 +40,14 @@ jobs:
             echo "Processing $image..."
 
             # 拉取镜像
-            if docker pull "$image"; then
-              CLEAN_NAME=$(echo "$image" | sed 's/[\/:]/_/g')
-              
-              # 保存并直接通过 gzip 压缩 (大幅节省空间)
-              echo "Saving and compressing $image..."
-              docker save "$image" | gzip > "./docker_images/${CLEAN_NAME}.tar.gz"
-              
-              # 关键步骤：删除已下载的镜像以释放空间，为下一个镜像腾地方
-              docker rmi "$image"
-            else
-              echo "Failed to pull $image, skipping..."
-            fi
+            CLEAN_NAME=$(echo "$image" | sed 's/[\/:]/_/g')
+            
+            # 保存并直接通过 gzip 压缩 (大幅节省空间)
+            echo "Saving and compressing $image..."
+            docker save "$image" | gzip > "./docker_images/${CLEAN_NAME}.tar.gz"
+            
+            # 关键步骤：删除已下载的镜像以释放空间，为下一个镜像腾地方
+            docker rmi "$image"
           done
               
       - name: Upload Artifact
