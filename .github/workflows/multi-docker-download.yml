@@ -10,6 +10,20 @@ jobs:
   download:
     runs-on: ubuntu-latest
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # 以下选项可根据需要开启/关闭
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: Check disk space
+        run: df -h
       - name: Checkout Code
         uses: actions/checkout@v4
 
