@@ -38,7 +38,7 @@ jobs:
           # ------------------
           # 1. 使用 sed 提取 100 到 200 行
           # 2. 循环处理
-          sed -n '201,250p' images_mini.txt | while IFS= read -r image || [ -n "$image" ]; do
+          sed -n '251,300p' images_mini.txt | while IFS= read -r image || [ -n "$image" ]; do
           # 过滤空行和注释
             [[ -z "$image" || "$image" =~ ^# ]] && continue
             image=$(echo "$image" | xargs)
