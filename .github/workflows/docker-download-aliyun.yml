@@ -25,7 +25,7 @@ jobs:
         with:
           login-server: registry.cn-beijing.aliyuncs.com # 根据你的地域修改，如 cn-shanghai
           access-key-id: LTAI5t69NDTSsxjExuqGFydr
-          access-key-secret: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
+          access-key-secret: iwjhbWNYHclXzsriJQoaLt60nFZRkg
 
       - name: Pull, Tag, and Push
         run: |
