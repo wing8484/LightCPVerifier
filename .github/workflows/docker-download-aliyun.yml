@@ -23,15 +23,15 @@ jobs:
       - name: Login to ACR
         uses: aliyun/acr-login@v1
         with:
-          login-server: registry.cn-hangzhou.aliyuncs.com # 根据你的地域修改，如 cn-shanghai
-          access-key-id: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_ID }}
+          login-server: registry.cn-beijing.aliyuncs.com # 根据你的地域修改，如 cn-shanghai
+          access-key-id: LTAI5t69NDTSsxjExuqGFydr
           access-key-secret: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
 
       - name: Pull, Tag, and Push
         run: |
           # 配置变量
-          REGISTRY=registry.cn-hangzhou.aliyuncs.com
-          NAMESPACE=${{ secrets.ACR_NAMESPACE }}
+          REGISTRY=registry.cn-beijing.aliyuncs.com
+          NAMESPACE=github_action1
           
           echo "Starting process..."
           
