@@ -13,11 +13,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Free Disk Space
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
-          docker-images: false # 这里设为false，因为我们要拉取新镜像
+      # - name: Free Disk Space
+      #   uses: jlumbroso/free-disk-space@main
+      #   with:
+      #     tool-cache: true
+      #     docker-images: false # 这里设为false，因为我们要拉取新镜像
 
       # 1. 登录阿里云镜像仓库
       # - name: Login to ACR
