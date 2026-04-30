@@ -20,16 +20,16 @@ jobs:
       #     docker-images: false # 这里设为false，因为我们要拉取新镜像
 
       # 1. 登录阿里云镜像仓库
-      # - name: Login to ACR
-      #   uses: aliyun/acr-login@v1
-      #   with:
-      #     login-server: crpi-qb9v9pmucg1slgus.cn-beijing.personal.cr.aliyuncs.com # 根据你的地域修改，如 cn-shanghai
-      #     access-key-id: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_ID }}
-      #     access-key-secret: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
-      #     region-id: cn-beijing  # <--- 必须和上面一致
-      - name: Login to ACR (Standard Mode)
-        run: |
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login --username=github-action-docker@1799277451570482.onaliyun.com --password-stdin crpi-qb9v9pmucg1slgus.cn-beijing.personal.cr.aliyuncs.com
+      - name: Login to ACR
+        uses: aliyun/acr-login@v1
+        with:
+          login-server: crpi-qb9v9pmucg1slgus.cn-beijing.personal.cr.aliyuncs.com # 根据你的地域修改，如 cn-shanghai
+          access-key-id: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_ID }}
+          access-key-secret: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
+          region-id: cn-beijing  # <--- 必须和上面一致
+      # - name: Login to ACR (Standard Mode)
+      #   run: |
+      #     echo "${{ secrets.ACR_PASSWORD }}" | docker login --username=github-action-docker@1799277451570482.onaliyun.com --password-stdin crpi-qb9v9pmucg1slgus.cn-beijing.personal.cr.aliyuncs.com
           
           
       # 2. 构建并推送
