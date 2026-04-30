@@ -20,64 +20,54 @@ jobs:
       #     docker-images: false # 这里设为false，因为我们要拉取新镜像
 
       # 1. 登录阿里云镜像仓库
-      - name: Login to ACR
-        uses: aliyun/acr-login@v1
-        with:
-          login-server: crpi-qb9v9pmucg1slgus.cn-beijing.personal.cr.aliyuncs.com # 根据你的地域修改，如 cn-shanghai
-          access-key-id: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_ID }}
-          access-key-secret: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
-          region-id: cn-beijing  # <--- 必须和上面一致
-
-
+      # - name: Login to ACR
+      #   uses: aliyun/acr-login@v1
+      #   with:
+      #     login-server: crpi-qb9v9pmucg1slgus.cn-beijing.personal.cr.aliyuncs.com # 根据你的地域修改，如 cn-shanghai
+      #     access-key-id: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_ID }}
+      #     access-key-secret: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
+      #     region-id: cn-beijing  # <--- 必须和上面一致
+      - name: Login to ACR (Standard Mode)
+        run: |
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login --username=github-action-docker@1799277451570482.onaliyun.com --password-stdin crpi-qb9v9pmucg1slgus.cn-beijing.personal.cr.aliyuncs.com
+          
+          
+      # 2. 构建并推送
       - name: Pull, Tag, and Push
         run: |
-          # 配置变量
+          # 变量统统使用那个长地址
           REGISTRY=crpi-qb9v9pmucg1slgus.cn-beijing.personal.cr.aliyuncs.com
           NAMESPACE=github_action1
           
           echo "Starting process..."
           
-          
-          # 提取 251 到 300 行
+          # 提取 1 到 56 行进行测试
           sed -n '1,56p' images_mini.txt | while IFS= read -r image || [ -n "$image" ]; do
             [[ -z "$image" || "$image" =~ ^# ]] && continue
             image=$(echo "$image" | xargs)
             
-            echo "--------------------------------"
-            echo "Processing image: $image"
+            # 简化命名逻辑：将所有斜杠换成单横杠，且确保没有双横杠
+            # 例如 mswebench/catchorg_m_catch2 -> mswebench-catchorg-m-catch2
+            RAW_NAME=$(echo "$image" | cut -d':' -f1)
+            SAFE_NAME=$(echo "$RAW_NAME" | sed 's/[\/]/--/g' | sed 's/--/-/g')
+            TAG=$(echo "$image" | cut -d':' -f2)
+            [ "$TAG" == "$image" ] && TAG=latest
 
-            # 1. 拉取原始镜像
+            NEW_IMAGE="$REGISTRY/$NAMESPACE/$SAFE_NAME:$TAG"
+            
+            echo "------------------------------------------------"
+            echo "Target Image: $NEW_IMAGE"
+            
             if docker pull "$image"; then
-              
-              # 2. 生成阿里云镜像标签
-              # 将原始镜像名中的 / 替换为 - ，防止多级路径冲突
-              # 例如：bitnami/redis:latest -> registry.../namespace/bitnami-redis:latest
-              RAW_NAME=$(echo "$image" | cut -d'/' -f2-)
-              # 如果镜像名不含斜杠(如 mysql:8.0)，上一行会处理错，改用下面更稳妥的方法：
-              IMAGE_TAG=$(echo "$image" | sed 's/.*\///') # 只取冒号前后的名字
-              
-              # 建议直接用简单的逻辑：将整个原始路径中的 / 换成 -
-              # SAFE_NAME=$(echo "$image" | sed 's/[\/]/--/g')
-              # 将所有的斜杠 / 替换为单个横杠 -
-              SAFE_NAME=$(echo "$image" | sed 's/[\/ ]/-/g' | sed 's/--/-/g')
-              NEW_IMAGE="$REGISTRY/$NAMESPACE/$SAFE_NAME"
-              
-              echo "Re-tagging $image to $NEW_IMAGE"
               docker tag "$image" "$NEW_IMAGE"
-
-              echo "Pushing to: $NEW_IMAGE"
-              
-              # 3. 推送至阿里云
-              echo "Pushing $NEW_IMAGE..."
+              # 如果这一步报错，说明仓库没创建或命名不规范
               docker push "$NEW_IMAGE"
-              
-              # 4. 清理本地空间
               docker rmi "$image" "$NEW_IMAGE"
-              echo "Done and cleaned."
             else
-              echo "Failed to pull $image, skipping..."
+              echo "Failed to pull $image"
             fi
           done
+
 
       - name: Check Final Space
         run: df -h
