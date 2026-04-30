@@ -36,7 +36,7 @@ jobs:
           echo "Starting process..."
           
           # 提取 251 到 300 行
-          sed -n '1,56p' images_300.txt | while IFS= read -r image || [ -n "$image" ]; do
+          sed -n '1,56p' images_mini.txt | while IFS= read -r image || [ -n "$image" ]; do
             [[ -z "$image" || "$image" =~ ^# ]] && continue
             image=$(echo "$image" | xargs)
             
