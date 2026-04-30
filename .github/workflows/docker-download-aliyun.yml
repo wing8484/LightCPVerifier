@@ -30,8 +30,7 @@ jobs:
       - name: Login to ACR (Manual)
         run: |
           # 这里的 --username 建议填你那个 RAM 用户的全名
-          # echo "${{ secrets.ACR_PASSWORD }}" | docker login --username=github-action-docker@1799277451570482.onaliyun.com --password-stdin registry.cn-beijing.aliyuncs.com
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login --username=nick1845593624 crpi-qb9v9pmucg1slgus.cn-beijing.personal.cr.aliyuncs.com
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login --username=github-action-docker@1799277451570482.onaliyun.com --password-stdin registry.cn-beijing.aliyuncs.com
 
 
       - name: Pull, Tag, and Push
