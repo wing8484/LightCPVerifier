@@ -36,6 +36,7 @@ jobs:
           
           echo "Starting process..."
           
+          
           # 提取 251 到 300 行
           sed -n '1,56p' images_mini.txt | while IFS= read -r image || [ -n "$image" ]; do
             [[ -z "$image" || "$image" =~ ^# ]] && continue
@@ -60,6 +61,8 @@ jobs:
               
               echo "Re-tagging $image to $NEW_IMAGE"
               docker tag "$image" "$NEW_IMAGE"
+
+              echo "Pushing to: $NEW_IMAGE"
               
               # 3. 推送至阿里云
               echo "Pushing $NEW_IMAGE..."
