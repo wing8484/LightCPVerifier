@@ -57,7 +57,9 @@ jobs:
               IMAGE_TAG=$(echo "$image" | sed 's/.*\///') # 只取冒号前后的名字
               
               # 建议直接用简单的逻辑：将整个原始路径中的 / 换成 -
-              SAFE_NAME=$(echo "$image" | sed 's/[\/]/--/g')
+              # SAFE_NAME=$(echo "$image" | sed 's/[\/]/--/g')
+              # 将所有的斜杠 / 替换为单个横杠 -
+              SAFE_NAME=$(echo "$image" | sed 's/[\/ ]/-/g' | sed 's/--/-/g')
               NEW_IMAGE="$REGISTRY/$NAMESPACE/$SAFE_NAME"
               
               echo "Re-tagging $image to $NEW_IMAGE"
