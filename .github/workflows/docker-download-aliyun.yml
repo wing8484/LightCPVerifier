@@ -42,7 +42,7 @@ jobs:
           echo "Starting process..."
           
           # 提取 1 到 56 行进行测试
-          sed -n '1,56p' images_mini.txt | while IFS= read -r image || [ -n "$image" ]; do
+          sed -n '1,21p' images_cybergym_subset.txt | while IFS= read -r image || [ -n "$image" ]; do
             [[ -z "$image" || "$image" =~ ^# ]] && continue
             image=$(echo "$image" | xargs)
             
