@@ -3,7 +3,7 @@ name: Push Images to Aliyun ACR
 on:
   push:
     paths:
-      - 'images_mini.txt'
+      - 'images_cybergym_subset.txt'
   workflow_dispatch:
 
 jobs:
