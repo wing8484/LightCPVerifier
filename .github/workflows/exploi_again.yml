@@ -1,0 +1,36 @@
+name: Sync GHCR Images to Alibaba Cloud
+
+on:
+  workflow_dispatch: # 手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Skopeo
+        run: sudo apt-get update && sudo apt-get install -y skopeo
+
+      - name: Login to Alibaba Cloud Registry
+        run: |
+          skopeo login crpi-qb9v9pmucg1slgus.cn-beijing.personal.cr.aliyuncs.com \
+            -u nick1845593624 \
+            -p ${{ secrets.ACR_PASSWORD }}
+
+      - name: Sync Images with Retry
+        run: |
+          # 获取所有 Tag 列表
+          TAGS=$(skopeo list-tags docker://ghcr.io/exploitbench/v8-r1 | jq -r '.Tags[]')
+          
+          # 遍历同步每一个 Tag
+          for tag in $TAGS; do
+            echo "正在同步 Tag: $tag ..."
+            # 使用 --retry-times 增加重试次数
+            # 使用 skopeo copy 而不是 sync，可以更精细控制
+            skopeo copy \
+              --src-tls-verify=false \
+              --dest-tls-verify=false \
+              --retry-times 5 \
+              docker://ghcr.io/exploitbench/v8-r1:$tag \
+              docker://crpi-qb9v9pmucg1slgus.cn-beijing.personal.cr.aliyuncs.com/github_action1/v8-r1:$tag || echo "Tag $tag 同步失败，跳过继续下一个"
+              sleep 2
+          done
