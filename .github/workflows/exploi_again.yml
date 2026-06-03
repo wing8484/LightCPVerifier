@@ -31,6 +31,6 @@ jobs:
               --dest-tls-verify=false \
               --retry-times 5 \
               docker://ghcr.io/exploitbench/v8-r1:$tag \
-              docker://crpi-qb9v9pmucg1slgus.cn-beijing.personal.cr.aliyuncs.com/github_action1/v8-r1:$tag || echo "Tag $tag 同步失败，跳过继续下一个"
+              docker://crpi-qb9v9pmucg1slgus.cn-beijing.personal.cr.aliyuncs.com/images-rl/v8-r1:$tag || echo "Tag $tag 同步失败，跳过继续下一个"
               sleep 2
           done
